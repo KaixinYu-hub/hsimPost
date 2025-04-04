@@ -8,10 +8,10 @@
 #ifndef _KDTREE_M_H_
 #define _KDTREE_M_H_
 
-#include "HmeshGen/MeshHighOrder/kdtree.h"
+#include "kdtree.h"
 #include "Eigen/Dense"
 #include <vector>
-#include "HmeshGen/MeshHighOrder/common_type.h"
+#include "common_type.h"
 
 namespace HmeshGen
 {

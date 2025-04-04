@@ -5,7 +5,7 @@
  * @Last Modified time: 2022-06-12 19:48:27 
  */
 
-#include "HmeshGen/MeshHighOrder/kdtree_m.h"
+#include "kdtree_m.h"
 namespace HmeshGen
 {
 	KdTreeM::KdTreeM(int dimension)
