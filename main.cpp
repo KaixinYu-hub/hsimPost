@@ -108,5 +108,6 @@ int main(int argc, char** argv)
 	WriteMeshTopologyVTK(output_file, MyTetList, MyWedList, v_3d_coord);
 
 	return 0;
+
 }
 #pragma optimize("",on)
