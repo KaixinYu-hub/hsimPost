@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME}
 	kdtree.h
 	kdtree_m.h
 	kdtree_m.cpp
+	common.cpp
 )
 
 # 添加头文件路径

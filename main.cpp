@@ -20,7 +20,6 @@ int main(int argc, char** argv)
 	std::string linear_wed_file;
 	std::string output_file;
 	std::string savepath;
-	double scale_factor = 20;
 
 	CLI::App app{ "High Order Mesh Generation Preparation" };
 	//*************************************************************************
@@ -32,12 +31,6 @@ int main(int argc, char** argv)
 		"Specify the linear boundary layer mesh flie path(*.vtk)")->required();
 	app.add_option("-o", output_file,
 		"Specify the output mesh flie path(*.vtk)")->required();
-	app.add_option("--scale", scale_factor,
-		"Specify the scale factor for box");
-
-	double size = 1.0;
-	app.add_option("--size", size,
-		"Specify the size factor for tet mesh");
 	
 	try
 	{
@@ -49,8 +42,19 @@ int main(int argc, char** argv)
 		return app.exit(e);
 	}
 
+	std::vector<std::vector<int>> LinearTetList;
 	std::vector<std::vector<int>> LinearWedList;
 	std::vector<vec3d>v_3d_coord;
+
+	std::vector<double> pressureList;
+
+
+	ReadLinearHybridMeshFile_vtk5(
+		linear_wed_file,
+		v_3d_coord,
+		LinearTetList,
+		LinearWedList, 
+		pressureList);
 
 	return 0;
 }

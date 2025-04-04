@@ -15,6 +15,7 @@
 #include <string>
 #include <climits>
 #include <set>
+#include <iostream>
 #include <array>
 
 typedef Eigen::Vector3d vec3d;
@@ -24,6 +25,14 @@ typedef Eigen::Vector4i vec4i;
 typedef Eigen::Vector2i vec2i;
 typedef Eigen::MatrixXd mat;
 
+
+void ReadLinearHybridMeshFile_vtk5(
+	std::string volumefilename,
+	std::vector<vec3d>& v_3d_coord,
+	std::vector<std::vector<int>>& LinearTetList,
+	std::vector<std::vector<int>>& LinearWedList,
+	std::vector<double>& pressureList
+);
 
 
 
