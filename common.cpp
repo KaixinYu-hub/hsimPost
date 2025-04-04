@@ -201,3 +201,144 @@ void ReadLinearHybridMeshFile_vtk5(
 
 
 }
+
+void PointAssemble(
+	double eps,
+	int start_id,
+	std::vector<vec3d>& pointList_need_assembled,
+	std::map<int, int>& map_assemble
+)
+{
+	std::vector<vec3d>pointList_assembled;
+
+	/*
+	Remove duplicate points at the boundaries of higher-order elements
+	*/
+	std::map<int, int>map_duplicate;//Record duplicate point
+	std::map<int, int>map_nonduplicate;//Record non-duplicate point
+
+
+	KdTreeM kdtree(3);
+	std::vector<int> result;
+
+	for (int i = 0; i < pointList_need_assembled.size(); i++)
+	{
+		result = kdtree.Query3DNodeByDistance(pointList_need_assembled[i], eps);
+
+		int index = i + start_id;
+
+		//duplicate points exist
+		if (result.size() > 0)
+		{
+			map_duplicate[index] = result[0];
+		}
+		else
+		{
+			kdtree.Insert3DNode(pointList_need_assembled[i], index);
+
+			pointList_assembled.push_back(pointList_need_assembled[i]);
+
+			map_nonduplicate[index] = -1;
+
+		}
+
+	}
+
+	pointList_need_assembled = pointList_assembled;
+
+	//map the non-duplicate point to new topology 
+	int offset = 0;
+	for (auto& map_pair : map_nonduplicate)
+	{
+		if (map_pair.second == -1)
+		{
+			map_pair.second = start_id + offset;
+			offset++;
+		}
+	}
+
+	//map the duplicate point to non-duplicate point
+	for (auto& map_pair : map_duplicate)
+	{
+		map_pair.second = map_nonduplicate[map_pair.second];
+	}
+
+	//assemble the above two hashtable 
+	for (auto& map_pair : map_duplicate)
+	{
+		map_assemble.insert(map_pair);
+	}
+	for (auto& map_pair : map_nonduplicate)
+	{
+		map_assemble.insert(map_pair);
+	}
+
+}
+
+void WriteMeshTopologyVTK(const std::string& filename,
+	const std::vector<Tet>& tets,
+	const std::vector<Wed>& wedges,
+	const std::vector<vec3d>& v_3d_coord)
+{
+	std::ofstream fout(filename);
+	if (!fout)
+	{
+		std::cerr << "Cannot open file for writing: " << filename << std::endl;
+		return;
+	}
+
+	fout << "# vtk DataFile Version 3.0\n";
+	fout << "Hybrid Mesh Output\n";
+	fout << "ASCII\n";
+	fout << "DATASET UNSTRUCTURED_GRID\n";
+
+	// 1. 统计所有出现过的点编号（去重）
+	std::set<int> unique_ids;
+	for (const auto& t : tets) unique_ids.insert(t.topo.begin(), t.topo.end());
+	for (const auto& w : wedges) unique_ids.insert(w.topo.begin(), w.topo.end());
+
+	// 2. 建立旧ID -> 新ID 映射
+	std::map<int, int> global_id_map;
+	std::vector<vec3d> used_coords;
+	int new_id = 0;
+	for (int old_id : unique_ids)
+	{
+		global_id_map[old_id] = new_id++;
+		used_coords.push_back(v_3d_coord[old_id]);
+	}
+
+	// 3. 输出 POINTS 坐标
+	fout << "POINTS " << used_coords.size() << " float\n";
+	for (const auto& pt : used_coords)
+	{
+		fout << pt[0] << " " << pt[1] << " " << pt[2] << "\n";
+	}
+
+	// 4. 输出 CELLS
+	int total_cells = static_cast<int>(tets.size() + wedges.size());
+	int total_entries = static_cast<int>(tets.size()) * 5 + static_cast<int>(wedges.size()) * 7;
+
+	fout << "CELLS " << total_cells << " " << total_entries << "\n";
+
+	for (const auto& t : tets)
+	{
+		fout << "4 ";
+		for (int id : t.topo) fout << global_id_map[id] << " ";
+		fout << "\n";
+	}
+
+	for (const auto& w : wedges)
+	{
+		fout << "6 ";
+		for (int id : w.topo) fout << global_id_map[id] << " ";
+		fout << "\n";
+	}
+
+	// 5. 输出 CELL_TYPES
+	fout << "CELL_TYPES " << total_cells << "\n";
+	for (size_t i = 0; i < tets.size(); ++i) fout << "10\n";
+	for (size_t i = 0; i < wedges.size(); ++i) fout << "13\n";
+
+	fout.close();
+	std::cout << "Mesh topology written to: " << filename << std::endl;
+}

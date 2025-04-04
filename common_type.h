@@ -17,6 +17,8 @@
 #include <set>
 #include <iostream>
 #include <array>
+#include <map>
+
 
 typedef Eigen::Vector3d vec3d;
 typedef Eigen::Vector2d vec2d;
@@ -25,6 +27,21 @@ typedef Eigen::Vector4i vec4i;
 typedef Eigen::Vector2i vec2i;
 typedef Eigen::MatrixXd mat;
 
+#include "kdtree_m.h"
+
+struct Tet
+{
+public:
+	std::vector<int>topo;
+	std::vector<double>pressure;
+};
+
+struct Wed
+{
+public:
+	std::vector<int>topo;
+	std::vector<double>pressure;
+};
 
 void ReadLinearHybridMeshFile_vtk5(
 	std::string volumefilename,
@@ -33,6 +50,19 @@ void ReadLinearHybridMeshFile_vtk5(
 	std::vector<std::vector<int>>& LinearWedList,
 	std::vector<double>& pressureList
 );
+
+void PointAssemble(
+	double eps,
+	int start_id,
+	std::vector<vec3d>& pointList_need_assembled,
+	std::map<int, int>& map_assemble
+);
+
+void WriteMeshTopologyVTK(const std::string& filename,
+	const std::vector<Tet>& tets,
+	const std::vector<Wed>& wedges,
+	const std::vector<vec3d>& v_3d_coord);
+
 
 
 
