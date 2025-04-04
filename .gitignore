@@ -1,0 +1,97 @@
+# Extern
+/extern/.cache
+/extern/libigl
+/extern/spdlog
+/extern
+
+log.txt
+
+# Build
+*build*/*
+.idea/*
+.vscode/
+/data
+.DS_Store
+test.cpp
+
+# Lib
+lib
+
+# Bin
+bin
+
+# Vim
+*.swp
+
+# Test
+/test
+/Example
+
+# Release file
+Release/
+
+# Debug file
+Debug/
+
+
+# CMake files
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Project files
+.vs/
+*.sln
+*.sdf
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.opensdf
+*.suo
+*.plg
+*.ncb
+*.opt
+*.vspx
+*.json
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# diagsession file
+*.diagsession
+
+# tecplot debug file
+*.tec
+*.dat
