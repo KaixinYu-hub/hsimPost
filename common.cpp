@@ -278,7 +278,8 @@ void PointAssemble(
 void WriteMeshTopologyVTK(const std::string& filename,
 	const std::vector<Tet>& tets,
 	const std::vector<Wed>& wedges,
-	const std::vector<vec3d>& v_3d_coord)
+	const std::vector<vec3d>& v_3d_coord,
+	std::map<int, double>& MyPressureList)
 {
 	std::ofstream fout(filename);
 	if (!fout)
@@ -338,6 +339,16 @@ void WriteMeshTopologyVTK(const std::string& filename,
 	fout << "CELL_TYPES " << total_cells << "\n";
 	for (size_t i = 0; i < tets.size(); ++i) fout << "10\n";
 	for (size_t i = 0; i < wedges.size(); ++i) fout << "13\n";
+
+	// 4. 输出点数据：压力字段（直接遍历 map）
+	fout << "POINT_DATA " << MyPressureList.size() << "\n";
+	fout << "SCALARS Pressure float 1\n";
+	fout << "LOOKUP_TABLE default\n";
+	for (const auto& [id, pressure] : MyPressureList)
+	{
+		fout << pressure << "\n";
+	}
+
 
 	fout.close();
 	std::cout << "Mesh topology written to: " << filename << std::endl;

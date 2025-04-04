@@ -105,7 +105,24 @@ int main(int argc, char** argv)
 		}
 	}
 
-	WriteMeshTopologyVTK(output_file, MyTetList, MyWedList, v_3d_coord);
+	std::map<int, double> MyPressureList;
+
+	for (auto& Tet : MyTetList)
+	{
+		for (int i = 0; i < Tet.topo.size(); i++)
+		{
+			MyPressureList[Tet.topo[i]] = Tet.pressure[i];
+		}
+	}
+	for (auto& Wed : MyWedList)
+	{
+		for (int i = 0; i < Wed.topo.size(); i++)
+		{
+			MyPressureList[Wed.topo[i]] = Wed.pressure[i];
+		}
+	}
+
+	WriteMeshTopologyVTK(output_file, MyTetList, MyWedList, v_3d_coord, MyPressureList);
 
 	return 0;
 
