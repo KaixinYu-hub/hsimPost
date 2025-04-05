@@ -142,8 +142,20 @@ void ReadLinearHybridMeshFile_vtk5(
 		{
 			LinearTetList.push_back(cellConnectivity);
 		}
-		else if (cellType == 13|| cellType == 73) // 三棱柱（三角柱）通常有6个顶点
+		else if (cellType == 13) // 三棱柱（三角柱）通常有6个顶点
 		{
+			std::swap(cellConnectivity[1], cellConnectivity[2]);
+			std::swap(cellConnectivity[4], cellConnectivity[5]);
+			LinearWedList.push_back(cellConnectivity);
+		}
+		else if (cellType == 73)
+		{
+			std::swap(cellConnectivity[1], cellConnectivity[2]);
+			std::swap(cellConnectivity[4], cellConnectivity[5]);
+			std::swap(cellConnectivity[13], cellConnectivity[14]);
+			std::swap(cellConnectivity[9], cellConnectivity[11]);
+			std::swap(cellConnectivity[15], cellConnectivity[17]);
+			std::swap(cellConnectivity[6], cellConnectivity[8]);
 			LinearWedList.push_back(cellConnectivity);
 		}
 		else
