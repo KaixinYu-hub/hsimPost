@@ -138,21 +138,12 @@ void ReadLinearHybridMeshFile_vtk5(
 		// 将该单元的所有顶点编号读出
 		std::vector<int> cellConnectivity(connectivity.begin() + start, connectivity.begin() + end);
 		int cellType = cellTypes[c];
-		if (cellType == 10)  // 四面体（tetrahedron）通常有4个顶点
+		if (cellType == 10 || cellType == 71)  // 四面体（tetrahedron）通常有4个顶点
 		{
-			if (nVertices != 4)
-				std::cerr << "Warning: Tetrahedron cell does not have 4 vertices!" << std::endl;
 			LinearTetList.push_back(cellConnectivity);
 		}
-		else if (cellType == 13) // 三棱柱（三角柱）通常有6个顶点
+		else if (cellType == 13|| cellType == 73) // 三棱柱（三角柱）通常有6个顶点
 		{
-			if (nVertices != 6)
-				std::cerr << "Warning: Wedge cell does not have 6 vertices!" << std::endl;
-
-			//only for zgridgen output
-			std::swap(cellConnectivity[1], cellConnectivity[2]);
-			std::swap(cellConnectivity[4], cellConnectivity[5]);
-
 			LinearWedList.push_back(cellConnectivity);
 		}
 		else
@@ -393,28 +384,29 @@ void WriteMeshTopologyVTK(const std::string& filename,
 
 	// 4. 输出 CELLS
 	int total_cells = static_cast<int>(tets.size() + wedges.size());
-	int total_entries = static_cast<int>(tets.size()) * 5 + static_cast<int>(wedges.size()) * 7;
+	int total_entries = static_cast<int>(tets.size()) * (tets[0].topo.size() + 1)
+		+ static_cast<int>(wedges.size()) * (wedges[0].topo.size() + 1);
 
 	fout << "CELLS " << total_cells << " " << total_entries << "\n";
 
 	for (const auto& t : tets)
 	{
-		fout << "4 ";
+		fout << t.topo.size() << " ";
 		for (int id : t.topo) fout << global_id_map[id] << " ";
 		fout << "\n";
 	}
 
 	for (const auto& w : wedges)
 	{
-		fout << "6 ";
+		fout << w.topo.size() << " ";
 		for (int id : w.topo) fout << global_id_map[id] << " ";
 		fout << "\n";
 	}
 
 	// 5. 输出 CELL_TYPES
 	fout << "CELL_TYPES " << total_cells << "\n";
-	for (size_t i = 0; i < tets.size(); ++i) fout << "10\n";
-	for (size_t i = 0; i < wedges.size(); ++i) fout << "13\n";
+	for (size_t i = 0; i < tets.size(); ++i) fout << "71\n";
+	for (size_t i = 0; i < wedges.size(); ++i) fout << "73\n";
 
 	// 4. 输出点数据：压力字段（直接遍历 map）
 	fout << "POINT_DATA " << MyPressureList.size() << "\n";

@@ -14,7 +14,7 @@
 #include "CLI11.hpp"
 #include <string>
 
-
+#pragma optimize("",off)
 int main(int argc, char** argv)
 {
 	std::string linear_wed_file;
@@ -67,3 +67,4 @@ int main(int argc, char** argv)
 	return 0;
 
 }
+#pragma optimize("",on)
