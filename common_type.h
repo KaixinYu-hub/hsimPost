@@ -58,6 +58,16 @@ void PointAssemble(
 	std::map<int, int>& map_assemble
 );
 
+void MeshAssemble(
+	std::vector<vec3d>& v_3d_coord,
+	std::vector<std::vector<int>>& LinearTetList,
+	std::vector<std::vector<int>>& LinearWedList,
+	std::vector<double>& pressureList,
+	std::vector<Tet>& MyTetList,
+	std::vector<Wed>& MyWedList,
+	std::map<int, double>& MyPressureList
+);
+
 void WriteMeshTopologyVTK(const std::string& filename,
 	const std::vector<Tet>& tets,
 	const std::vector<Wed>& wedges,

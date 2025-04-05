@@ -275,6 +275,82 @@ void PointAssemble(
 
 }
 
+
+void MeshAssemble(
+	std::vector<vec3d>&v_3d_coord,
+	std::vector<std::vector<int>>& LinearTetList,
+	std::vector<std::vector<int>>& LinearWedList,
+	std::vector<double>& pressureList,
+	std::vector<Tet>& MyTetList,
+	std::vector<Wed>& MyWedList,
+	std::map<int, double>& MyPressureList
+	)
+{
+	//数据结构转换
+	for (int i = 0; i < LinearTetList.size(); i++)
+	{
+		Tet temp;
+		temp.topo = LinearTetList[i];
+
+		for (auto& index : temp.topo)
+		{
+			temp.pressure.push_back(pressureList[index]);
+		}
+
+		MyTetList.push_back(temp);
+	}
+
+	for (int i = 0; i < LinearWedList.size(); i++)
+	{
+		Wed temp;
+		temp.topo = LinearWedList[i];
+
+		for (auto& index : temp.topo)
+		{
+			temp.pressure.push_back(pressureList[index]);
+		}
+
+		MyWedList.push_back(temp);
+	}
+
+	//去重
+	std::map<int, int> map_assemble;
+	PointAssemble(1e-6, 0, v_3d_coord, map_assemble);
+
+
+	for (auto& Tet : MyTetList)
+	{
+		for (auto& id : Tet.topo)
+		{
+			id = map_assemble[id];
+		}
+	}
+
+	for (auto& Wed : MyWedList)
+	{
+		for (auto& id : Wed.topo)
+		{
+			id = map_assemble[id];
+		}
+	}
+
+
+	for (auto& Tet : MyTetList)
+	{
+		for (int i = 0; i < Tet.topo.size(); i++)
+		{
+			MyPressureList[Tet.topo[i]] = Tet.pressure[i];
+		}
+	}
+	for (auto& Wed : MyWedList)
+	{
+		for (int i = 0; i < Wed.topo.size(); i++)
+		{
+			MyPressureList[Wed.topo[i]] = Wed.pressure[i];
+		}
+	}
+}
+
 void WriteMeshTopologyVTK(const std::string& filename,
 	const std::vector<Tet>& tets,
 	const std::vector<Wed>& wedges,
