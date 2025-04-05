@@ -47,22 +47,28 @@ int main(int argc, char** argv)
 	std::vector<vec3d>v_3d_coord;
 
 	std::vector<double> pressureList;
+	std::vector<vec3d>velocityList;
+
 	ReadLinearHybridMeshFile_vtk5(
 		linear_wed_file,
 		v_3d_coord,
 		LinearTetList,
 		LinearWedList, 
-		pressureList);
+		pressureList, 
+		velocityList);
 
 	std::vector<Tet> MyTetList;
 	std::vector<Wed> MyWedList;
 	std::map<int, double>MyPressureList;
+	std::map<int, vec3d>MyVelocityList;
 	MeshAssemble(
 		v_3d_coord,
-		LinearTetList, LinearWedList, pressureList,
-		MyTetList, MyWedList, MyPressureList);
+		LinearTetList, LinearWedList, pressureList, velocityList,
+		MyTetList, MyWedList, MyPressureList, MyVelocityList);
 
-	WriteMeshTopologyVTK(output_file, MyTetList, MyWedList, v_3d_coord, MyPressureList);
+	WriteMeshTopologyVTK(
+		output_file, MyTetList, MyWedList, v_3d_coord, 
+		MyPressureList, MyVelocityList);
 
 	return 0;
 

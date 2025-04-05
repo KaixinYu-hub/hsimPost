@@ -34,6 +34,8 @@ struct Tet
 public:
 	std::vector<int>topo;
 	std::vector<double>pressure;
+
+	std::vector<vec3d>velocity;
 };
 
 struct Wed
@@ -41,6 +43,7 @@ struct Wed
 public:
 	std::vector<int>topo;
 	std::vector<double>pressure;
+	std::vector<vec3d>velocity;
 };
 
 void ReadLinearHybridMeshFile_vtk5(
@@ -48,7 +51,8 @@ void ReadLinearHybridMeshFile_vtk5(
 	std::vector<vec3d>& v_3d_coord,
 	std::vector<std::vector<int>>& LinearTetList,
 	std::vector<std::vector<int>>& LinearWedList,
-	std::vector<double>& pressureList
+	std::vector<double>& pressureList,
+	std::vector<vec3d>& velocity
 );
 
 void PointAssemble(
@@ -63,16 +67,20 @@ void MeshAssemble(
 	std::vector<std::vector<int>>& LinearTetList,
 	std::vector<std::vector<int>>& LinearWedList,
 	std::vector<double>& pressureList,
+	std::vector<vec3d>& velocityList,
 	std::vector<Tet>& MyTetList,
 	std::vector<Wed>& MyWedList,
-	std::map<int, double>& MyPressureList
+	std::map<int, double>& MyPressureList,
+	std::map<int, vec3d>& MyVelocityList
 );
 
 void WriteMeshTopologyVTK(const std::string& filename,
 	const std::vector<Tet>& tets,
 	const std::vector<Wed>& wedges,
 	const std::vector<vec3d>& v_3d_coord,
-	std::map<int, double>& MyPressureList);
+	std::map<int, double>& MyPressureList,
+	std::map<int, vec3d>& MyVelocityList
+	);
 
 
 

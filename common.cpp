@@ -5,7 +5,8 @@ void ReadLinearHybridMeshFile_vtk5(
 	std::vector<vec3d>& v_3d_coord,
 	std::vector<std::vector<int>>& LinearTetList,
 	std::vector<std::vector<int>>& LinearWedList,
-	std::vector<double>& pressureList
+	std::vector<double>& pressureList,
+	std::vector<vec3d>&velocity
 
 )
 {
@@ -144,8 +145,8 @@ void ReadLinearHybridMeshFile_vtk5(
 		}
 		else if (cellType == 13) // 三棱柱（三角柱）通常有6个顶点
 		{
-			std::swap(cellConnectivity[1], cellConnectivity[2]);
-			std::swap(cellConnectivity[4], cellConnectivity[5]);
+			//std::swap(cellConnectivity[1], cellConnectivity[2]);
+			//std::swap(cellConnectivity[4], cellConnectivity[5]);
 			LinearWedList.push_back(cellConnectivity);
 		}
 		else if (cellType == 73)
@@ -164,6 +165,45 @@ void ReadLinearHybridMeshFile_vtk5(
 		}
 	}
 
+
+	// 9. 读取 Velocity 部分（向量数据）
+	while (std::getline(fin, line)) {
+		if (!line.empty() && line.find("Velocity") != std::string::npos)
+			break;
+	}
+
+	if (line.empty() || line.find("Velocity") == std::string::npos) {
+		std::cerr << "Warning: 'Velocity' section not found in file: " << volumefilename << std::endl;
+		// 不是致命错误
+	}
+	else {
+		std::istringstream issVelocity(line);
+		std::string velocityLabel;
+		int components = 0;
+		int velocityCount = 0;
+		std::string dataType;
+		issVelocity >> velocityLabel >> components >> velocityCount >> dataType;
+
+		if (components != 3) {
+			std::cerr << "Error: Velocity should have 3 components per vector!" << std::endl;
+			return;
+		}
+
+		if (velocityCount != numPoints) {
+			std::cerr << "Warning: Velocity count does not match number of points ("
+				<< velocityCount << " vs " << numPoints << ")" << std::endl;
+		}
+
+		// 每个点读3个分量
+		velocity.resize(velocityCount);
+		for (int i = 0; i < velocityCount; i++) {
+			double vx, vy, vz;
+			fin >> vx >> vy >> vz;
+			velocity[i] = vec3d(vx, vy, vz);
+		}
+
+		std::getline(fin, line); // 读完清空一行
+	}
 
 	// 8. 读取 Pressure 部分
 
@@ -196,12 +236,7 @@ void ReadLinearHybridMeshFile_vtk5(
 			fin >> pressureList[i];
 		}
 
-		// 读取完后清理末尾空行
-		std::getline(fin, line);
 	}
-
-
-
 
 }
 
@@ -284,9 +319,11 @@ void MeshAssemble(
 	std::vector<std::vector<int>>& LinearTetList,
 	std::vector<std::vector<int>>& LinearWedList,
 	std::vector<double>& pressureList,
+	std::vector<vec3d>&velocityList,
 	std::vector<Tet>& MyTetList,
 	std::vector<Wed>& MyWedList,
-	std::map<int, double>& MyPressureList
+	std::map<int, double>& MyPressureList,
+	std::map<int, vec3d>& MyVelocityList
 	)
 {
 	//数据结构转换
@@ -298,6 +335,7 @@ void MeshAssemble(
 		for (auto& index : temp.topo)
 		{
 			temp.pressure.push_back(pressureList[index]);
+			temp.velocity.push_back(velocityList[index]);
 		}
 
 		MyTetList.push_back(temp);
@@ -311,6 +349,7 @@ void MeshAssemble(
 		for (auto& index : temp.topo)
 		{
 			temp.pressure.push_back(pressureList[index]);
+			temp.velocity.push_back(velocityList[index]);
 		}
 
 		MyWedList.push_back(temp);
@@ -343,6 +382,7 @@ void MeshAssemble(
 		for (int i = 0; i < Tet.topo.size(); i++)
 		{
 			MyPressureList[Tet.topo[i]] = Tet.pressure[i];
+			MyVelocityList[Tet.topo[i]] = Tet.velocity[i];
 		}
 	}
 	for (auto& Wed : MyWedList)
@@ -350,6 +390,7 @@ void MeshAssemble(
 		for (int i = 0; i < Wed.topo.size(); i++)
 		{
 			MyPressureList[Wed.topo[i]] = Wed.pressure[i];
+			MyVelocityList[Wed.topo[i]] = Wed.velocity[i];
 		}
 	}
 }
@@ -358,7 +399,8 @@ void WriteMeshTopologyVTK(const std::string& filename,
 	const std::vector<Tet>& tets,
 	const std::vector<Wed>& wedges,
 	const std::vector<vec3d>& v_3d_coord,
-	std::map<int, double>& MyPressureList)
+	std::map<int, double>& MyPressureList,
+	std::map<int, vec3d>& MyVelocityList)
 {
 	std::ofstream fout(filename);
 	if (!fout)
@@ -429,6 +471,12 @@ void WriteMeshTopologyVTK(const std::string& filename,
 		fout << pressure << "\n";
 	}
 
+	// 6.2 输出 Velocity（矢量）
+	fout << "NORMALS Velocity float\n";
+	for (const auto& [id, velocity] : MyVelocityList)
+	{
+		fout << velocity[0] << " " << velocity[1] << " " << velocity[2] << "\n";
+	}
 
 	fout.close();
 	std::cout << "Mesh topology written to: " << filename << std::endl;
