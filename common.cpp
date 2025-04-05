@@ -376,23 +376,45 @@ void MeshAssemble(
 		}
 	}
 
+	std::map<int, double> pressureSum;
+	std::map<int, vec3d> velocitySum;
+	std::map<int, int> pointTimes;
 
 	for (auto& Tet : MyTetList)
 	{
 		for (int i = 0; i < Tet.topo.size(); i++)
 		{
-			MyPressureList[Tet.topo[i]] = Tet.pressure[i];
-			MyVelocityList[Tet.topo[i]] = Tet.velocity[i];
+			int pid = Tet.topo[i];
+			pressureSum[pid] += Tet.pressure[i];
+			if (velocitySum.find(pid) == velocitySum.end())
+				velocitySum[pid] = vec3d::Zero();
+			velocitySum[pid] += Tet.velocity[i];
+			pointTimes[pid]++;
 		}
 	}
+
 	for (auto& Wed : MyWedList)
 	{
 		for (int i = 0; i < Wed.topo.size(); i++)
 		{
-			MyPressureList[Wed.topo[i]] = Wed.pressure[i];
-			MyVelocityList[Wed.topo[i]] = Wed.velocity[i];
+			int pid = Wed.topo[i];
+			pressureSum[pid] += Wed.pressure[i];
+			if (velocitySum.find(pid) == velocitySum.end())
+				velocitySum[pid] = vec3d::Zero();
+			velocitySum[pid] += Wed.velocity[i];
+			pointTimes[pid]++;
 		}
 	}
+
+	MyPressureList.clear();
+	MyVelocityList.clear();
+
+	for (const auto& [pid, count] : pointTimes)
+	{
+		MyPressureList[pid] = pressureSum[pid] / count;
+		MyVelocityList[pid] = velocitySum[pid] / count;
+	}
+
 }
 
 void WriteMeshTopologyVTK(const std::string& filename,
