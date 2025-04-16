@@ -151,12 +151,12 @@ void ReadLinearHybridMeshFile_vtk5(
 		}
 		else if (cellType == 73)
 		{
-			std::swap(cellConnectivity[1], cellConnectivity[2]);
-			std::swap(cellConnectivity[4], cellConnectivity[5]);
-			std::swap(cellConnectivity[13], cellConnectivity[14]);
-			std::swap(cellConnectivity[9], cellConnectivity[11]);
-			std::swap(cellConnectivity[15], cellConnectivity[17]);
-			std::swap(cellConnectivity[6], cellConnectivity[8]);
+			//std::swap(cellConnectivity[1], cellConnectivity[2]);
+			//std::swap(cellConnectivity[4], cellConnectivity[5]);
+			//std::swap(cellConnectivity[13], cellConnectivity[14]);
+			//std::swap(cellConnectivity[9], cellConnectivity[11]);
+			//std::swap(cellConnectivity[15], cellConnectivity[17]);
+			//std::swap(cellConnectivity[6], cellConnectivity[8]);
 			LinearWedList.push_back(cellConnectivity);
 		}
 		else
