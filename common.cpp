@@ -176,6 +176,11 @@ void ReadLinearHybridMeshFile_vtk5(
 				std::swap(cellConnectivity[26], cellConnectivity[35]);
 				std::swap(cellConnectivity[28], cellConnectivity[37]);
 				std::swap(cellConnectivity[12], cellConnectivity[17]);
+
+				std::swap(cellConnectivity[8], cellConnectivity[9]);
+				std::swap(cellConnectivity[30], cellConnectivity[31]);
+				std::swap(cellConnectivity[32], cellConnectivity[33]);
+				std::swap(cellConnectivity[14], cellConnectivity[15]);
 			}
 			LinearWedList.push_back(cellConnectivity);
 		}
