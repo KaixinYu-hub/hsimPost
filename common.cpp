@@ -163,19 +163,19 @@ void ReadLinearHybridMeshFile_vtk5(
 			else if (cellConnectivity.size() == 40)//p3
 			{
 				std::swap(cellConnectivity[1], cellConnectivity[2]);
-				std::swap(cellConnectivity[16], cellConnectivity[22]);
-				std::swap(cellConnectivity[26], cellConnectivity[32]);
+				std::swap(cellConnectivity[20], cellConnectivity[22]);
+				std::swap(cellConnectivity[21], cellConnectivity[23]);
 				std::swap(cellConnectivity[4], cellConnectivity[5]);
 
-				std::swap(cellConnectivity[7], cellConnectivity[11]);
-				std::swap(cellConnectivity[15], cellConnectivity[20]);
-				std::swap(cellConnectivity[25], cellConnectivity[30]);
-				std::swap(cellConnectivity[34], cellConnectivity[38]);
+				std::swap(cellConnectivity[7], cellConnectivity[10]);
+				std::swap(cellConnectivity[27], cellConnectivity[34]);
+				std::swap(cellConnectivity[29], cellConnectivity[36]);
+				std::swap(cellConnectivity[13], cellConnectivity[16]);
 
-				std::swap(cellConnectivity[6], cellConnectivity[8]);
-				std::swap(cellConnectivity[14], cellConnectivity[17]);
-				std::swap(cellConnectivity[24], cellConnectivity[27]);
-				std::swap(cellConnectivity[33], cellConnectivity[35]);
+				std::swap(cellConnectivity[6], cellConnectivity[11]);
+				std::swap(cellConnectivity[26], cellConnectivity[35]);
+				std::swap(cellConnectivity[28], cellConnectivity[37]);
+				std::swap(cellConnectivity[12], cellConnectivity[17]);
 			}
 			LinearWedList.push_back(cellConnectivity);
 		}
