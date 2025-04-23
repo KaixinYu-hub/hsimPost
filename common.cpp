@@ -263,6 +263,108 @@ void ReadLinearHybridMeshFile_vtk5(
 
 	}
 
+	// 9. 读取 Velocity 部分（向量数据或标量数据拆分为 Avg_U, Avg_V, Avg_W）
+	while (std::getline(fin, line)) {
+		if (!line.empty() && line.find("Avg_U") != std::string::npos)
+			break;
+	}
+
+	if (line.empty() || line.find("Avg_U") == std::string::npos) {
+		std::cerr << "Warning: 'Avg_U' section not found in file: " << volumefilename << std::endl;
+		// 不是致命错误
+	}
+	else {
+		// 处理 Avg_U 部分
+		std::istringstream issAvgU(line);
+		std::string avgUTag;
+		int avgUFlag, avgUCount;
+		std::string dataType;
+		issAvgU >> avgUTag >> avgUFlag >> avgUCount >> dataType;
+
+		if (avgUCount != numPoints) {
+			std::cerr << "Warning: Avg_U count does not match number of points ("
+				<< avgUCount << " vs " << numPoints << ")" << std::endl;
+		}
+
+		// 读取 Avg_U 分量
+		std::vector<double> avgUValues(avgUCount);
+		for (int i = 0; i < avgUCount; i++) {
+			fin >> avgUValues[i];
+		}
+
+		std::getline(fin, line);  // 读取完清空一行
+
+		// 读取 Avg_V 部分
+		while (std::getline(fin, line)) {
+			if (!line.empty() && line.find("Avg_V") != std::string::npos)
+				break;
+		}
+
+		if (line.empty() || line.find("Avg_V") == std::string::npos) {
+			std::cerr << "Warning: 'Avg_V' section not found in file: " << volumefilename << std::endl;
+			// 不是致命错误
+		}
+		else {
+			// 处理 Avg_V 部分
+			std::istringstream issAvgV(line);
+			std::string avgVTag;
+			int avgVFlag, avgVCount;
+			issAvgV >> avgVTag >> avgVFlag >> avgVCount >> dataType;
+
+			if (avgVCount != numPoints) {
+				std::cerr << "Warning: Avg_V count does not match number of points ("
+					<< avgVCount << " vs " << numPoints << ")" << std::endl;
+			}
+
+			// 读取 Avg_V 分量
+			std::vector<double> avgVValues(avgVCount);
+			for (int i = 0; i < avgVCount; i++) {
+				fin >> avgVValues[i];
+			}
+
+			std::getline(fin, line);  // 读取完清空一行
+
+			// 读取 Avg_W 部分
+			while (std::getline(fin, line)) {
+				if (!line.empty() && line.find("Avg_W") != std::string::npos)
+					break;
+			}
+
+			if (line.empty() || line.find("Avg_W") == std::string::npos) {
+				std::cerr << "Warning: 'Avg_W' section not found in file: " << volumefilename << std::endl;
+				// 不是致命错误
+			}
+			else {
+				// 处理 Avg_W 部分
+				std::istringstream issAvgW(line);
+				std::string avgWTag;
+				int avgWFlag, avgWCount;
+				issAvgW >> avgWTag >> avgWFlag >> avgWCount >> dataType;
+
+				if (avgWCount != numPoints) {
+					std::cerr << "Warning: Avg_W count does not match number of points ("
+						<< avgWCount << " vs " << numPoints << ")" << std::endl;
+				}
+
+				// 读取 Avg_W 分量
+				std::vector<double> avgWValues(avgWCount);
+				for (int i = 0; i < avgWCount; i++) {
+					fin >> avgWValues[i];
+				}
+
+				// 组装并填充 velocity 向量
+				velocity.resize(numPoints);
+				for (int i = 0; i < numPoints; i++) {
+					// 将每个点的 Avg_U, Avg_V, Avg_W 组装为一个 vec3d 对象
+					velocity[i] = vec3d(avgUValues[i], avgVValues[i], avgWValues[i]);
+				}
+
+				std::getline(fin, line);  // 读取完清空一行
+			}
+		}
+	}
+
+
 }
 
 void PointAssemble(
